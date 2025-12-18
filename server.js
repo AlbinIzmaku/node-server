@@ -1,7 +1,8 @@
-import http from "node:http";
+import * as http from "node:http";
 import fs from "node:fs";
 import { URL } from "node:url";
 import querystring from "node:querystring";
+import path from "node:path";
 
 const server = http
   .createServer((request, response) => {
@@ -13,15 +14,41 @@ const server = http
       fs.createReadStream("./index.html").pipe(response);
       return;
     }
+    if (method === "GET" && url === "/about") {
+      response.writeHead(200, { "content-type": "text/html" });
+      fs.createReadStream("./about.html").pipe(response);
+      return;
+    }
 
-    if (method === "GET" && parsedUrl.pathname === "/login") {
+    if (method === "GET" && url === "/contact") {
+      response.writeHead(200, { "content-type": "text/html" });
+      fs.createReadStream("./contact.html").pipe(response);
+      return;
+    }
+    
+    if (method === "GET" && url === "/login") {
       response.writeHead(200, { "content-type": "text/html" });
       fs.createReadStream("./login.html").pipe(response);
 
       return;
     }
 
-    if (method === "POST" && parsedUrl.pathname === "/login") {
+    if (method === "GET" && url === "/homeStyle.css") {
+      response.writeHead(200, { "content-type": "text/css" });
+      fs.createReadStream("./homeStyle.css").pipe(response);
+      return;
+    }
+
+    if (method === "GET" && url.startsWith("/images/")) {
+      const filePath = path.join(process.cwd(), url);
+
+      response.writeHead(200, { "Content-Type": "image/png" });
+      fs.createReadStream(filePath).pipe(response);
+
+      return;
+    }
+
+    if (method === "POST" && url === "/login") {
       let body = "";
 
       request.on("data", (chunk) => {
